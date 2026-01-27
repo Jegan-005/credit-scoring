@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - CredX AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+</head>
+<body>
+
+<div class="centered-form-container">
+  <div class="centered-form-box">
+    <div class="form-header">
+      <h1>CredX AI</h1>
+      <h2>Login</h2>
+    </div>
+
+    {% if error %}
+    <div class="error-message">{{ error }}</div>
+    {% endif %}
+
+    <form method="post" class="centered-form">
+      <div class="form-group">
+        <input type="text" name="username" placeholder="Username" required>
+      </div>
+
+      <div class="form-group">
+        <input type="password" name="password" placeholder="Password" required>
+      </div>
+
+      <button type="submit" class="btn primary full-width">Login</button>
+    </form>
+
+    <div class="form-footer">
+      <p>Don't have an account? <a href="/signup">Sign up</a></p>
+      <a href="/">Back to Home</a>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

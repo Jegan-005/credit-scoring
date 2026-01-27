@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile - CredX AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+
+<!-- TOP NAVIGATION -->
+<nav class="top-navbar">
+  <div class="brand">CREDX AI</div>
+  <div class="nav-center">
+    <a href="/dashboard" class="nav-item">Dashboard</a>
+    <span class="nav-item active">Profile</span>
+  </div>
+  <div class="nav-right">
+    <span class="user-welcome">{{ username }}</span>
+    <a href="/logout" class="nav-btn logout">Logout</a>
+  </div>
+</nav>
+
+<!-- DASHBOARD CONTAINER -->
+<div class="dashboard-container">
+
+  <!-- SUCCESS MESSAGE -->
+  {% if success_message %}
+  <div class="success-message">{{ success_message }}</div>
+  {% endif %}
+
+  <!-- ERROR MESSAGE -->
+  {% if error_message %}
+  <div class="error-message">{{ error_message }}</div>
+  {% endif %}
+
+  <!-- USER PROFILE CARD -->
+  <div class="card">
+    <div class="card-header">
+      <h2>User Profile</h2>
+    </div>
+    <div class="card-content">
+      <div class="metric-row">
+        <span class="label">Username:</span>
+        <span class="value">{{ username }}</span>
+      </div>
+      <div class="metric-row">
+        <span class="label">Email:</span>
+        <span class="value">{{ data.email }}</span>
+      </div>
+      
+      {% if financial_data %}
+        <div class="metric-row">
+          <span class="label">Age:</span>
+          <span class="value">{{ financial_data.age }} years</span>
+        </div>
+        <div class="metric-row">
+          <span class="label">Monthly Income:</span>
+          <span class="value">₹{{ "{:,}".format(financial_data.income) }}</span>
+        </div>
+        <div class="metric-row">
+          <span class="label">Existing Loans:</span>
+          <span class="value">{{ financial_data.existing_loans }}</span>
+        </div>
+        <div class="metric-row">
+          <span class="label">Total EMI:</span>
+          <span class="value">₹{{ "{:,}".format(financial_data.total_emi) }}</span>
+        </div>
+        <div class="metric-row">
+          <span class="label">Credit Utilization:</span>
+          <span class="value">{{ "%.1f"|format(financial_data.credit_utilization) }}%</span>
+        </div>
+        <div class="metric-row">
+          <span class="label">Past Defaults:</span>
+          <span class="value">
+            {% if financial_data.defaults == 1 %}Yes{% else %}No{% endif %}
+          </span>
+        </div>
+      {% else %}
+        <div class="metric-row">
+          <span class="label">Financial Profile:</span>
+          <span class="value">Not completed</span>
+        </div>
+      {% endif %}
+      
+      <div class="metric-row">
+        <span class="label">Member Since:</span>
+        <span class="value">{{ data.created_at[:10] }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIONS CARD -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Actions</h3>
+    </div>
+    <div class="card-content">
+      <div class="actions-grid">
+        <button class="action-btn" onclick="updateProfile()">Update Profile</button>
+        {% if financial_data %}
+          <button class="action-btn" onclick="updateFinancialDetails()">Update Financial Details</button>
+        {% else %}
+          <button class="action-btn" onclick="completeFinancialProfile()">Complete Financial Profile</button>
+        {% endif %}
+        <button class="action-btn" onclick="refreshAnalysis()">Refresh Analysis</button>
+        <button class="action-btn" onclick="downloadData()">Export Data</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- UPDATE PROFILE MODAL -->
+<div id="updateModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Update Profile</h3>
+      <span class="close" onclick="closeUpdateModal()">×</span>
+    </div>
+    <div class="modal-body">
+      <form method="POST" action="/update-profile" class="update-form">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" name="email" value="{{ data.email }}" required>
+        </div>
+        <div class="form-group">
+          <label>New Password (leave blank to keep current)</label>
+          <input type="password" name="password" placeholder="New password">
+        </div>
+        <div class="form-group">
+          <label>Confirm New Password</label>
+          <input type="password" name="confirm_password" placeholder="Confirm new password">
+        </div>
+        <button type="submit" class="btn primary">Update Profile</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function updateProfile() {
+  document.getElementById('updateModal').style.display = 'block';
+}
+
+function closeUpdateModal() {
+  document.getElementById('updateModal').style.display = 'none';
+}
+
+function updateFinancialDetails() {
+  window.location.href = '/financial-form';
+}
+
+function completeFinancialProfile() {
+  window.location.href = '/financial-form';
+}
+
+function refreshAnalysis() {
+  window.location.href = '/dashboard';
+}
+
+function downloadData() {
+  window.location.href = '/download-report';
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+  const modal = document.getElementById('updateModal');
+  if (event.target === modal) {
+    modal.style.display = 'none';
+  }
+}
+
+// Form validation
+document.querySelector('.update-form').addEventListener('submit', function(e) {
+  const password = document.querySelector('input[name="password"]').value;
+  const confirmPassword = document.querySelector('input[name="confirm_password"]').value;
+  
+  if (password && password !== confirmPassword) {
+    e.preventDefault();
+    alert('Passwords do not match');
+  }
+});
+</script>
+
+</body>
+</html>

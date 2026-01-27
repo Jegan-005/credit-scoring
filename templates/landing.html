@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CredX - AI Credit Scoring System</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+</head>
+<body>
+
+<!-- NAVIGATION BAR -->
+<nav class="navbar">
+  <div class="logo">CredX AI</div>
+  <div class="nav-buttons">
+    <a href="/login" class="nav-btn">Login</a>
+    <a href="/signup" class="nav-btn signup">Sign Up</a>
+  </div>
+</nav>
+
+<!-- HERO SECTION -->
+<section class="hero">
+  <div class="hero-content">
+    <h1>CredX AI - Credit Scoring System</h1>
+    <p class="hero-subtitle">
+      Advanced machine learning system that analyzes your financial profile to provide instant credit scores, 
+      risk assessments, and loan eligibility calculations.
+    </p>
+    
+    <div class="hero-actions">
+      <a href="/signup" class="btn primary">Get Started</a>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES SECTION -->
+<section class="features">
+  <div class="container">
+    <h2>Features</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <h3>Credit Analysis</h3>
+        <p>Advanced AI algorithms analyze your financial profile for accurate credit scoring</p>
+      </div>
+      
+      <div class="feature-card">
+        <h3>Instant Results</h3>
+        <p>Get your credit score and risk assessment in seconds</p>
+      </div>
+      
+      <div class="feature-card">
+        <h3>Financial Guidance</h3>
+        <p>Receive personalized recommendations to improve your credit profile</p>
+      </div>
+      
+      <div class="feature-card">
+        <h3>Secure Platform</h3>
+        <p>Your financial data is protected with enterprise-grade security</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <div class="logo">CredX AI</div>
+        <p>AI-powered financial risk analysis platform</p>
+      </div>
+      <div class="footer-links">
+        <div class="link-group">
+          <h4>Platform</h4>
+          <a href="/login">Dashboard</a>
+          <a href="/signup">Sign Up</a>
+        </div>
+        <div class="link-group">
+          <h4>Features</h4>
+          <a href="#">Credit Scoring</a>
+          <a href="#">Risk Analysis</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2024 CredX AI. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

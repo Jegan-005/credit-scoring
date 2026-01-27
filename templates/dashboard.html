@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CredX AI Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+
+<!-- TOP NAVIGATION -->
+<nav class="top-navbar">
+  <div class="brand">CREDX AI</div>
+  <div class="nav-center">
+    <span class="nav-item active">Dashboard</span>
+    <a href="/profile" class="nav-item">Profile</a>
+  </div>
+  <div class="nav-right">
+    <span class="user-welcome">Welcome, {{ user }}</span>
+    <a href="/logout" class="nav-btn logout">Logout</a>
+  </div>
+</nav>
+
+<!-- DASHBOARD CONTAINER -->
+<div class="dashboard-container">
+  
+  <!-- CREDIT SCORE CARD -->
+  <div class="card">
+    <div class="card-header">
+      <h2>Credit Score</h2>
+    </div>
+    <div class="card-content">
+      <div class="metric-row">
+        <span class="label">Score:</span>
+        <span class="value">{{ credit_score }}</span>
+      </div>
+      <div class="metric-row">
+        <span class="label">Risk Level:</span>
+        <span class="value">{{ risk_level }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOAN ELIGIBILITY CARD -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Loan Eligibility</h3>
+    </div>
+    <div class="card-content">
+      <div class="metric-row">
+        <span class="label">Eligible Amount:</span>
+        <span class="value">₹{{ "{:,}".format(eligible_amount) }}</span>
+      </div>
+      <div class="metric-row">
+        <span class="label">Monthly EMI Capacity:</span>
+        <span class="value">₹{{ "{:,}".format(monthly_emi_capacity) }}</span>
+      </div>
+      <div class="metric-row">
+        <span class="label">Interest Rate Range:</span>
+        <span class="value">
+          {% if risk_level == 'Low' %}8.5% - 11.5%{% elif risk_level == 'Medium' %}11.5% - 15.5%{% else %}15.5% - 22%{% endif %}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FINANCIAL DETAILS CARD -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Financial Details</h3>
+    </div>
+    <div class="card-content">
+      <div class="metric-row">
+        <span class="label">Monthly Income:</span>
+        <span class="value">₹{{ "{:,}".format(income) }}</span>
+      </div>
+      <div class="metric-row">
+        <span class="label">Age:</span>
+        <span class="value">{{ age }} years</span>
+      </div>
+      <div class="metric-row">
+        <span class="label">Credit Utilization:</span>
+        <span class="value">{{ "%.1f"|format(credit_utilization) }}%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI ANALYSIS CARD -->
+  <div class="card">
+    <div class="card-header">
+      <h3>AI Analysis</h3>
+    </div>
+    <div class="card-content">
+      <p>{{ ai_explanation }}</p>
+      
+      <h4>Recommendations:</h4>
+      <ul>
+        {% if risk_level == 'High' %}
+          <li>Focus on increasing monthly income above ₹40,000</li>
+          <li>Reduce existing debt obligations</li>
+          <li>Build consistent payment history</li>
+        {% elif risk_level == 'Medium' %}
+          <li>Maintain current income stability</li>
+          <li>Consider diversifying credit portfolio</li>
+          <li>Keep credit utilization below 30%</li>
+        {% else %}
+          <li>Excellent profile! Consider premium financial products</li>
+          <li>Explore investment opportunities</li>
+          <li>Maintain current financial discipline</li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+
+  <!-- ACTIONS CARD -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Actions</h3>
+    </div>
+    <div class="card-content">
+      <div class="actions-grid">
+        <button class="action-btn" onclick="downloadReport()">Download Report</button>
+        <button class="action-btn" onclick="scheduleReview()">Schedule Review</button>
+        <button class="action-btn" onclick="openLoanCalculator()">EMI Calculator</button>
+        <button class="action-btn" onclick="shareScore()">Share Score</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- SIMPLE CHATBOT -->
+<div class="chatbot-container">
+  <div class="chatbot-btn" onclick="toggleChat()" id="chatbotBtn">Chat</div>
+
+  <div class="chatbot" id="chatbot">
+    <div class="chat-header">
+      <div class="chat-title">AI Assistant</div>
+      <button class="chat-close" onclick="toggleChat()">×</button>
+    </div>
+    
+    <div class="chat-body" id="chatBody">
+      <div class="bot-msg">Hi {{ user }}! Ask me about your credit score or financial advice.</div>
+    </div>
+    
+    <div class="chat-suggestions">
+      <button class="suggestion-btn" onclick="sendQuickQuestion('What is my credit score?')">What is my credit score?</button>
+      <button class="suggestion-btn" onclick="sendQuickQuestion('What is my risk level?')">What is my risk level?</button>
+      <button class="suggestion-btn" onclick="sendQuickQuestion('How can I improve my score?')">How can I improve my score?</button>
+    </div>
+    
+    <div class="chat-input">
+      <input type="text" id="userInput" placeholder="Ask me anything..." onkeypress="handleKeyPress(event)" />
+      <button onclick="sendMessage()" id="sendBtn">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- SIMPLE MODAL -->
+<div id="loanModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>EMI Calculator</h3>
+      <span class="close" onclick="closeLoanCalculator()">×</span>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Loan Amount (₹)</label>
+        <input type="number" id="loanAmount" value="{{ eligible_amount }}" />
+      </div>
+      <div class="form-group">
+        <label>Interest Rate (%)</label>
+        <input type="number" id="interestRate" value="12" step="0.1" />
+      </div>
+      <div class="form-group">
+        <label>Tenure (Years)</label>
+        <input type="number" id="tenure" value="5" />
+      </div>
+      <button class="btn primary" onclick="calculateEMI()">Calculate EMI</button>
+      <div class="calculator-result" id="emiResult"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Simple chatbot functionality
+let chatOpen = false;
+
+function toggleChat() {
+  const chatbot = document.getElementById('chatbot');
+  chatOpen = !chatOpen;
+  
+  if (chatOpen) {
+    chatbot.classList.add('show');
+  } else {
+    chatbot.classList.remove('show');
+  }
+}
+
+function sendMessage() {
+  const input = document.getElementById('userInput');
+  const message = input.value.trim();
+  if (!message) return;
+
+  addMessage(message, 'user');
+  input.value = '';
+  
+  showTyping();
+
+  fetch('/chat', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({message: message})
+  })
+  .then(res => res.json())
+  .then(data => {
+    hideTyping();
+    addMessage(data.reply, 'bot');
+  })
+  .catch(error => {
+    hideTyping();
+    addMessage('Sorry, I encountered an error. Please try again.', 'bot');
+  });
+}
+
+function addMessage(message, sender) {
+  const chatBody = document.getElementById('chatBody');
+  const messageDiv = document.createElement('div');
+  messageDiv.className = sender === 'user' ? 'user-msg' : 'bot-msg';
+  messageDiv.innerHTML = message;
+  
+  chatBody.appendChild(messageDiv);
+  chatBody.scrollTop = chatBody.scrollHeight;
+}
+
+function showTyping() {
+  const chatBody = document.getElementById('chatBody');
+  const typingDiv = document.createElement('div');
+  typingDiv.className = 'bot-msg typing';
+  typingDiv.id = 'typingIndicator';
+  typingDiv.innerHTML = 'Thinking...';
+  chatBody.appendChild(typingDiv);
+  chatBody.scrollTop = chatBody.scrollHeight;
+}
+
+function hideTyping() {
+  const typing = document.getElementById('typingIndicator');
+  if (typing) typing.remove();
+}
+
+function handleKeyPress(event) {
+  if (event.key === 'Enter') {
+    sendMessage();
+  }
+}
+
+function sendQuickQuestion(question) {
+  const input = document.getElementById('chatInput');
+  input.value = question;
+  sendMessage();
+}
+
+// Actions
+function openLoanCalculator() {
+  document.getElementById('loanModal').style.display = 'block';
+}
+
+function closeLoanCalculator() {
+  document.getElementById('loanModal').style.display = 'none';
+}
+
+function calculateEMI() {
+  const principal = parseFloat(document.getElementById('loanAmount').value);
+  const rate = parseFloat(document.getElementById('interestRate').value) / 12 / 100;
+  const tenure = parseFloat(document.getElementById('tenure').value) * 12;
+  
+  const emi = (principal * rate * Math.pow(1 + rate, tenure)) / (Math.pow(1 + rate, tenure) - 1);
+  const totalAmount = emi * tenure;
+  const totalInterest = totalAmount - principal;
+  
+  document.getElementById('emiResult').innerHTML = `
+    <div class="emi-results">
+      <div class="result-item">
+        <span class="label">Monthly EMI:</span>
+        <span class="value">₹${emi.toLocaleString('en-IN', {maximumFractionDigits: 0})}</span>
+      </div>
+      <div class="result-item">
+        <span class="label">Total Interest:</span>
+        <span class="value">₹${totalInterest.toLocaleString('en-IN', {maximumFractionDigits: 0})}</span>
+      </div>
+      <div class="result-item">
+        <span class="label">Total Amount:</span>
+        <span class="value">₹${totalAmount.toLocaleString('en-IN', {maximumFractionDigits: 0})}</span>
+      </div>
+    </div>
+  `;
+}
+
+function downloadReport() {
+  window.location.href = '/download-report';
+}
+
+function shareScore() {
+  if (navigator.share) {
+    navigator.share({
+      title: 'My CredX AI Credit Score',
+      text: `I got a credit score of {{ credit_score }} with {{ risk_level }} risk on CredX AI!`,
+      url: window.location.href
+    });
+  } else {
+    alert('Sharing feature not supported on this device');
+  }
+}
+
+function scheduleReview() {
+  window.location.href = '/schedule-review';
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+  const modal = document.getElementById('loanModal');
+  if (event.target === modal) {
+    modal.style.display = 'none';
+  }
+}
+</script>
+
+</body>
+</html>
